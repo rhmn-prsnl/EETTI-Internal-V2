@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EETTI TECH - Enterprise Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              // Yellow / Gold Theme
+              primary: {
+                50: '#FEFCE8',
+                100: '#FEF9C3',
+                200: '#FEF08A',
+                300: '#FDE047',
+                400: '#FACC15',
+                500: '#EAB308', // Main Brand Color
+                600: '#CA8A04',
+                700: '#A16207',
+                800: '#854D0E',
+                900: '#713F12',
+                950: '#422006',
+              },
+              // Dark / Black Theme
+              dark: {
+                50: '#f8fafc',
+                100: '#f1f5f9',
+                200: '#e2e8f0',
+                300: '#cbd5e1',
+                400: '#94a3b8',
+                500: '#64748b',
+                600: '#475569',
+                700: '#334155',
+                800: '#1e293b', // Card Bg
+                900: '#0f172a', // Main Bg
+                950: '#020617', // Deepest
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #0f172a; /* dark-900 */
+        color: #f8fafc; /* dark-50 */
+      }
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1e293b; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #475569;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #EAB308;
+      }
+      
+      /* Glassmorphism utilities */
+      .glass {
+        background: rgba(30, 41, 59, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .glass-card {
+        background: linear-gradient(145deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.4",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "express": "https://esm.sh/express@^5.2.1",
+    "cors": "https://esm.sh/cors@^2.8.6",
+    "dotenv": "https://esm.sh/dotenv@^17.2.4",
+    "http": "https://esm.sh/http@^0.0.1-security",
+    "socket.io": "https://esm.sh/socket.io@^4.8.3",
+    "@prisma/client": "https://esm.sh/@prisma/client@^7.3.0",
+    "bcryptjs": "https://esm.sh/bcryptjs@^3.0.3",
+    "jsonwebtoken": "https://esm.sh/jsonwebtoken@^9.0.3",
+    "socket.io-client": "https://esm.sh/socket.io-client@^4.8.3"
+  }
+}
+</script>
+</head>
+  <body class="antialiased overflow-hidden selection:bg-yellow-500 selection:text-black">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

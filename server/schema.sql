@@ -52,6 +52,14 @@ CREATE TABLE IF NOT EXISTS projects (
   FOREIGN KEY (managerId) REFERENCES users(id)
 );
 
+CREATE TABLE IF NOT EXISTS project_team_members (
+  projectId TEXT,
+  userId TEXT,
+  PRIMARY KEY (projectId, userId),
+  FOREIGN KEY (projectId) REFERENCES projects(id) ON DELETE CASCADE,
+  FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS tasks (
   id TEXT PRIMARY KEY,
   projectId TEXT NOT NULL,

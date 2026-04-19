@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
 import apiRouter from './server/api';
-import { initDatabase } from './server/database';
+import db, { initDatabase } from './server/database';
 import { seedDatabase } from './server/seed';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -20,12 +20,21 @@ async function startServer() {
   app.use(express.json());
 
   // Initialize DB
-  const dbPath = path.join(process.cwd(), 'database.sqlite');
-  if (!fs.existsSync(dbPath)) {
-    console.log('Database not found. Initializing and seeding...');
-    seedDatabase();
-  } else {
-    initDatabase();
+  try {
+    const tableCheck = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='users'").get();
+    if (!tableCheck) {
+      console.log('Database tables not found. Initializing and seeding...');
+      seedDatabase();
+    } else {
+      const userCount = db.prepare("SELECT count(*) as count FROM users").get() as {count: number};
+      if (userCount.count === 0) {
+        console.log('Database is empty. Seeding...');
+        seedDatabase();
+      }
+    }
+  } catch (err) {
+    console.error('Error checking database:', err);
+    // If malformed, we might need to recreate it, but we can't easily do that here if it's already open.
   }
 
   // --- API ROUTES ---

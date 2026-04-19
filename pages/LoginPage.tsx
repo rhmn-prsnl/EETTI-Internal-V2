@@ -24,6 +24,16 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, users }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!username.trim()) {
+      setError('Username or Email is required');
+      return;
+    }
+    if (!password.trim()) {
+      setError('Password is required');
+      return;
+    }
+
     setLoading(true);
 
     // Simulate network delay
@@ -36,6 +46,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, users }) => {
   const fillCreds = (u: string, p: string) => {
     setUsername(u);
     setPassword(p);
+    setError('');
   };
 
   return (
@@ -96,13 +107,16 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, users }) => {
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="space-y-4">
                   <Input 
-                    label="Username"
+                    label="Username or Email"
                     type="text"
-                    placeholder="Enter username"
+                    placeholder="Enter username or email"
                     icon={<User size={18} />}
                     value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    error={error && !username ? 'Required' : ''}
+                    onChange={(e) => {
+                      setUsername(e.target.value);
+                      if (error) setError('');
+                    }}
+                    error={error === 'Username or Email is required' ? error : ''}
                     className="bg-dark-800 border-dark-700 text-white placeholder-dark-500 focus:border-primary-500 focus:ring-primary-500/20"
                   />
                   
@@ -113,8 +127,11 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, users }) => {
                       placeholder="••••••••"
                       icon={<Lock size={18} />}
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      error={error ? error : ''}
+                      onChange={(e) => {
+                        setPassword(e.target.value);
+                        if (error) setError('');
+                      }}
+                      error={error && error !== 'Username or Email is required' ? error : ''}
                       className="bg-dark-800 border-dark-700 text-white placeholder-dark-500 focus:border-primary-500 focus:ring-primary-500/20"
                     />
                     <div className="flex justify-end pt-1">

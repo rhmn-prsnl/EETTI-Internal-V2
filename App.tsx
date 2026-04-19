@@ -53,7 +53,10 @@ const App: React.FC = () => {
       }
     }
 
-    const user = currentUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
+    const user = currentUsers.find(u => 
+      u.username.toLowerCase() === username.toLowerCase() || 
+      (u.officialEmail && u.officialEmail.toLowerCase() === username.toLowerCase())
+    );
     
     if (user && password === '123456') {
       setAuth({

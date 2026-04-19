@@ -177,10 +177,10 @@ const ComplianceLegal: React.FC<ComplianceLegalProps> = ({ user }) => {
               <p className="font-medium text-slate-900 dark:text-white">Employee Records</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">After termination</p>
             </div>
-            <select className="px-3 py-2 border border-slate-300 dark:border-dark-600 bg-white dark:bg-dark-800 rounded-lg text-sm">
+            <select defaultValue="7 Years" className="px-3 py-2 border border-slate-300 dark:border-dark-600 bg-white dark:bg-dark-800 rounded-lg text-sm">
               <option>1 Year</option>
               <option>3 Years</option>
-              <option selected>7 Years</option>
+              <option>7 Years</option>
               <option>Indefinitely</option>
             </select>
           </div>
@@ -189,10 +189,10 @@ const ComplianceLegal: React.FC<ComplianceLegalProps> = ({ user }) => {
               <p className="font-medium text-slate-900 dark:text-white">Financial Transactions</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">Invoices, expenses, payroll</p>
             </div>
-            <select className="px-3 py-2 border border-slate-300 dark:border-dark-600 bg-white dark:bg-dark-800 rounded-lg text-sm">
+            <select defaultValue="7 Years" className="px-3 py-2 border border-slate-300 dark:border-dark-600 bg-white dark:bg-dark-800 rounded-lg text-sm">
               <option>3 Years</option>
               <option>5 Years</option>
-              <option selected>7 Years</option>
+              <option>7 Years</option>
               <option>10 Years</option>
             </select>
           </div>
@@ -201,10 +201,10 @@ const ComplianceLegal: React.FC<ComplianceLegalProps> = ({ user }) => {
               <p className="font-medium text-slate-900 dark:text-white">System Audit Logs</p>
               <p className="text-sm text-slate-500 dark:text-slate-400">User activity, logins</p>
             </div>
-            <select className="px-3 py-2 border border-slate-300 dark:border-dark-600 bg-white dark:bg-dark-800 rounded-lg text-sm">
+            <select defaultValue="1 Year" className="px-3 py-2 border border-slate-300 dark:border-dark-600 bg-white dark:bg-dark-800 rounded-lg text-sm">
               <option>30 Days</option>
               <option>90 Days</option>
-              <option selected>1 Year</option>
+              <option>1 Year</option>
               <option>3 Years</option>
             </select>
           </div>

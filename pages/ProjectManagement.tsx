@@ -178,7 +178,7 @@ const ProjectManagement: React.FC<ProjectManagementProps> = ({
   // Visibility Logic based on Permissions
   const visibleProjects = (isSuperAdmin || !isRestrictedView)
     ? projects 
-    : projects.filter(p => p.teamMemberIds.includes(currentUser.id) || p.managerId === currentUser.id);
+    : projects.filter(p => (p.teamMemberIds || []).includes(currentUser.id) || p.managerId === currentUser.id);
 
   const activeProject = projects.find(p => p.id === activeProjectId);
 
@@ -509,7 +509,7 @@ const ProjectManagement: React.FC<ProjectManagementProps> = ({
           
           <div className="flex justify-between items-center">
             <div className="flex -space-x-2 overflow-hidden">
-              {project.teamMemberIds.map(uid => {
+              {(project.teamMemberIds || []).map(uid => {
                 const u = users.find(user => user.id === uid);
                 if (!u) return null;
                 return (
@@ -699,7 +699,7 @@ const ProjectManagement: React.FC<ProjectManagementProps> = ({
            </div>
            <div className="flex gap-2">
              <div className="flex -space-x-2 mr-4">
-                {activeProject.teamMemberIds.map(uid => {
+                {(activeProject.teamMemberIds || []).map(uid => {
                   const u = users.find(usr => usr.id === uid);
                   return u ? <img key={uid} src={u.avatar} className="w-8 h-8 rounded-full border-2 border-white" title={u.username} /> : null;
                 })}
@@ -888,7 +888,7 @@ const ProjectManagement: React.FC<ProjectManagementProps> = ({
              <div className="border border-slate-300 bg-white rounded-lg p-2 max-h-32 overflow-y-auto">
                {activeProject && users
                  // Include Project Team Members AND the Project Manager (Admin)
-                 .filter(u => activeProject.teamMemberIds.includes(u.id) || u.id === activeProject.managerId)
+                 .filter(u => (activeProject.teamMemberIds || []).includes(u.id) || u.id === activeProject.managerId)
                  .map(u => (
                  <label key={u.id} className="flex items-center space-x-2 p-1 hover:bg-slate-50 rounded cursor-pointer">
                     <input 

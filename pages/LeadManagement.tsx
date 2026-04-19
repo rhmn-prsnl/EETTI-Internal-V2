@@ -348,8 +348,8 @@ const LeadManagement: React.FC<LeadManagementProps> = ({
                  <input name="email" type="email" required placeholder="Email" className="w-full p-3 bg-slate-50 dark:bg-dark-700 rounded-lg border-none focus:ring-2 focus:ring-primary-500" />
                  <input name="phone" placeholder="Phone" className="w-full p-3 bg-slate-50 dark:bg-dark-700 rounded-lg border-none focus:ring-2 focus:ring-primary-500" />
                </div>
-               <select name="source" required className="w-full p-3 bg-slate-50 dark:bg-dark-700 rounded-lg border-none focus:ring-2 focus:ring-primary-500">
-                 <option value="" disabled selected>Select Source</option>
+               <select name="source" required defaultValue="" className="w-full p-3 bg-slate-50 dark:bg-dark-700 rounded-lg border-none focus:ring-2 focus:ring-primary-500">
+                 <option value="" disabled>Select Source</option>
                  <option value="Website">Website</option>
                  <option value="Referral">Referral</option>
                  <option value="LinkedIn">LinkedIn</option>

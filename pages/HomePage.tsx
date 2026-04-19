@@ -457,7 +457,9 @@ const HomePage: React.FC<HomePageProps> = ({ user, onLogout, onUpdateUser }) => 
 
         if (Array.isArray(usersRes)) setUsers(usersRes);
         if (Array.isArray(clientsRes)) setClients(clientsRes);
-        if (Array.isArray(projectsRes)) setProjects(projectsRes);
+        if (Array.isArray(projectsRes)) {
+          setProjects(projectsRes.map(p => ({ ...p, teamMemberIds: p.teamMemberIds || [] })));
+        }
         if (Array.isArray(tasksRes)) setTasks(tasksRes);
         if (Array.isArray(invoicesRes)) setInvoices(invoicesRes);
         if (Array.isArray(expensesRes)) setExpenses(expensesRes);
@@ -618,12 +620,12 @@ const HomePage: React.FC<HomePageProps> = ({ user, onLogout, onUpdateUser }) => 
         const statusLabel = updates.status === 'on-hold' ? 'On Hold' : updates.status === 'stopped' ? 'Stopped' : 'Inactive';
         
         // Notify Team Members
-        if (project.teamMemberIds.length > 0) {
+        if ((project.teamMemberIds || []).length > 0) {
           handleAddNotification({
             title: `Project ${statusLabel}: ${project.name}`,
             message: `The project has been marked as ${statusLabel} by Admin. All active tasks have been paused. You may proceed to your next assignment.`,
             type: 'warning',
-            targetUserIds: project.teamMemberIds,
+            targetUserIds: project.teamMemberIds || [],
             linkTo: 'projects'
           });
         }

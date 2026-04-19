@@ -16,7 +16,13 @@ router.get('/:table', (req, res) => {
     let items = db.prepare(`SELECT * FROM ${table}`).all();
     
     // Attach relations for specific tables
-    if (table === 'tasks') {
+    if (table === 'projects') {
+      const teamMembers = db.prepare(`SELECT * FROM project_team_members`).all();
+      items = items.map((project: any) => ({
+        ...project,
+        teamMemberIds: teamMembers.filter((tm: any) => tm.projectId === project.id).map((tm: any) => tm.userId)
+      }));
+    } else if (table === 'tasks') {
       const assignments = db.prepare(`SELECT * FROM task_assignments`).all();
       items = items.map((task: any) => ({
         ...task,
@@ -112,6 +118,22 @@ router.post('/:table', (req, res) => {
       return res.status(201).json({ success: true, id: quotationData.id });
     }
 
+    if (table === 'projects') {
+      const { teamMemberIds, ...projectData } = data;
+      const keys = Object.keys(projectData);
+      const values = Object.values(projectData);
+      const placeholders = keys.map(() => '?').join(', ');
+      
+      db.transaction(() => {
+        db.prepare(`INSERT INTO projects (${keys.join(', ')}) VALUES (${placeholders})`).run(...values);
+        if (teamMemberIds && Array.isArray(teamMemberIds)) {
+          const insertTeamMember = db.prepare(`INSERT INTO project_team_members (projectId, userId) VALUES (?, ?)`);
+          teamMemberIds.forEach(userId => insertTeamMember.run(projectData.id, userId));
+        }
+      })();
+      return res.status(201).json({ success: true, id: projectData.id });
+    }
+
     // Default insert
     const keys = Object.keys(data);
     const values = Object.values(data);
@@ -189,6 +211,25 @@ router.put('/:table/:id', (req, res) => {
           db.prepare(`DELETE FROM quotation_items WHERE quotationId = ?`).run(id);
           const insertItem = db.prepare(`INSERT INTO quotation_items (id, quotationId, description, quantity, unitPrice, taxRate, amount) VALUES (?, ?, ?, ?, ?, ?, ?)`);
           items.forEach(item => insertItem.run(item.id || `qt_item_${Date.now()}_${Math.random()}`, id, item.description, item.quantity, item.unitPrice, item.taxRate, item.amount));
+        }
+      })();
+      return res.json({ success: true });
+    }
+
+    if (table === 'projects') {
+      const { teamMemberIds, ...projectData } = data;
+      const keys = Object.keys(projectData).filter(k => k !== 'id');
+      const setClause = keys.map(k => `${k} = ?`).join(', ');
+      const values = keys.map(k => projectData[k]);
+      
+      db.transaction(() => {
+        if (keys.length > 0) {
+          db.prepare(`UPDATE projects SET ${setClause} WHERE id = ?`).run(...values, id);
+        }
+        if (teamMemberIds && Array.isArray(teamMemberIds)) {
+          db.prepare(`DELETE FROM project_team_members WHERE projectId = ?`).run(id);
+          const insertTeamMember = db.prepare(`INSERT INTO project_team_members (projectId, userId) VALUES (?, ?)`);
+          teamMemberIds.forEach(userId => insertTeamMember.run(id, userId));
         }
       })();
       return res.json({ success: true });

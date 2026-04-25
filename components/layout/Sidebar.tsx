@@ -1,5 +1,5 @@
-import React from 'react';
-import { LayoutDashboard, Settings, FileText, Users, BarChart3, Database, ShieldCheck, HelpCircle, CalendarCheck, Zap, Briefcase, Target, DollarSign, Globe, PieChart, TrendingUp, RefreshCw, MessageSquare, Scale, FileBadge } from 'lucide-react';
+import React, { useState } from 'react';
+import { LayoutDashboard, Settings, FileText, Users, BarChart3, Database, ShieldCheck, HelpCircle, CalendarCheck, Zap, Briefcase, Target, DollarSign, Globe, PieChart, TrendingUp, RefreshCw, MessageSquare, Scale, FileBadge, Phone, ChevronDown, ChevronRight } from 'lucide-react';
 import { NavItem, PermissionKey } from '../../types';
 
 interface SidebarProps {
@@ -11,6 +11,20 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, userRole, userPermissions }) => {
   const isSuperAdmin = userRole === 'super_admin';
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
+    'Main Menu': true,
+    'Sales & Projects': true,
+    'HR & Operations': false,
+    'Finance & Legal': false,
+    'Tools & Marketing': false,
+  });
+
+  const toggleCategory = (title: string) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [title]: !prev[title]
+    }));
+  };
 
   // Helper to check if item should show
   const hasAccess = (requiredPerm?: PermissionKey) => {
@@ -30,6 +44,15 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, userRole, 
       ]
     },
     {
+      title: 'Sales & Projects',
+      items: [
+        { id: 'prospects', icon: <Phone size={20} />, label: 'Prospect Management', requiredPermission: 'lead_view' },
+        { id: 'leads', icon: <Target size={20} />, label: 'Lead Management', requiredPermission: 'lead_view' },
+        { id: 'clients', icon: <Briefcase size={20} />, label: 'Client Management', requiredPermission: 'client_view' },
+        { id: 'projects', icon: <Database size={20} />, label: 'Projects', requiredPermission: 'project_view' },
+      ]
+    },
+    {
       title: 'HR & Operations',
       items: [
         { id: 'users', icon: <Users size={20} />, label: 'Employee Management', requiredPermission: 'user_view' },
@@ -37,14 +60,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, userRole, 
         { id: 'payroll', icon: <DollarSign size={20} />, label: 'Payroll', requiredPermission: 'payroll_view' },
         { id: 'expenses', icon: <PieChart size={20} />, label: 'Expenses', requiredPermission: 'expense_view' },
         { id: 'resumes', icon: <FileBadge size={20} />, label: 'Resume Management', requiredPermission: 'resume_view' },
-      ]
-    },
-    {
-      title: 'Sales & Projects',
-      items: [
-        { id: 'leads', icon: <Target size={20} />, label: 'Lead Management', requiredPermission: 'lead_view' },
-        { id: 'clients', icon: <Briefcase size={20} />, label: 'Client Management', requiredPermission: 'client_view' },
-        { id: 'projects', icon: <Database size={20} />, label: 'Projects', requiredPermission: 'project_view' },
       ]
     },
     {
@@ -99,39 +114,56 @@ const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, userRole, 
         </div>
       </div>
 
-      <div className="flex-1 py-6 px-3 space-y-6 overflow-y-auto custom-scrollbar">
-        {filteredCategories.map((category, idx) => (
+      <div className="flex-1 py-4 px-3 space-y-2 overflow-y-auto custom-scrollbar">
+        {filteredCategories.map((category, idx) => {
+          const isExpanded = expandedCategories[category.title] ?? false;
+          // Also automatically expand if currentView is inside this category
+          const hasActiveChild = category.items.some(item => item.id === currentView);
+          const showItems = isExpanded || hasActiveChild;
+
+          return (
           <div key={idx} className="space-y-1">
-            <p className="px-3 text-[10px] font-bold text-dark-500 uppercase tracking-widest mb-2">{category.title}</p>
-            {category.items.map((item) => {
-              const isActive = currentView === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => onChangeView(item.id)}
-                  className={`
-                    w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden
-                    ${isActive 
-                      ? 'bg-primary-500/10 text-primary-400 border border-primary-500/20' 
-                      : 'text-dark-400 hover:text-white hover:bg-white/5 border border-transparent'
-                    }
-                  `}
-                >
-                  {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-500 rounded-l"></div>}
-                  <span className={`${isActive ? 'text-primary-400' : 'text-dark-500 group-hover:text-primary-400 transition-colors'}`}>
-                    {item.icon}
-                  </span>
-                  <span className="font-bold text-sm tracking-wide flex-1 text-left">{item.label}</span>
-                  {item.isImportant && (
-                    <span className="px-1.5 py-0.5 text-[10px] font-bold bg-primary-500 text-white rounded shadow-sm animate-pulse">
-                      NEW
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+            <button 
+              onClick={() => toggleCategory(category.title)}
+              className="w-full flex items-center justify-between px-3 py-2 text-dark-400 hover:text-white group transition-colors"
+            >
+              <span className="text-[11px] font-bold uppercase tracking-widest">{category.title}</span>
+              {showItems ? <ChevronDown size={14} className="opacity-70 group-hover:opacity-100" /> : <ChevronRight size={14} className="opacity-70 group-hover:opacity-100" />}
+            </button>
+            
+            {showItems && (
+              <div className="space-y-1 pl-2 border-l border-dark-800 ml-2">
+                {category.items.map((item) => {
+                  const isActive = currentView === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => onChangeView(item.id)}
+                      className={`
+                        w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-200 group relative overflow-hidden mt-1
+                        ${isActive 
+                          ? 'bg-primary-500/10 text-primary-400' 
+                          : 'text-dark-400 hover:text-white hover:bg-white/5'
+                        }
+                      `}
+                    >
+                      {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary-500 rounded-l"></div>}
+                      <span className={`${isActive ? 'text-primary-400' : 'text-dark-500 group-hover:text-primary-400 transition-colors'}`}>
+                        {item.icon}
+                      </span>
+                      <span className="font-bold text-sm tracking-wide flex-1 text-left">{item.label}</span>
+                      {item.isImportant && (
+                        <span className="px-1.5 py-0.5 text-[10px] font-bold bg-primary-500 text-white rounded shadow-sm animate-pulse">
+                          NEW
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        ))}
+        )})}
       </div>
 
       <div className="p-3 border-t border-dark-800 bg-dark-900/50">

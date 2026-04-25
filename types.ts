@@ -641,6 +641,30 @@ export interface PayrollRecord {
   generatedAt: string;
 }
 
+// --- Prospect Management (Telecalling/Screening) ---
+
+export type ProspectStatus = 'new' | 'not_answered' | 'switched_off' | 'follow_up_later' | 'not_interested' | 'potential_lead' | 'invalid_number';
+
+export interface Prospect {
+  id: string;
+  phone: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  companyName?: string;
+  source: string; // e.g., 'JustDial', 'Facebook', 'Cold Call'
+  businessType?: 'Service' | 'Products' | 'Both' | '';
+  businessDetails?: string; 
+  targetAudience?: string; 
+  status: ProspectStatus;
+  notes?: string;
+  nextFollowUp?: string; // ISO date string
+  assignedTo: string; // User ID (Intern / Sales)
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // --- Lead Management ---
 
 export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'proposal' | 'negotiation' | 'closed_won' | 'closed_lost';

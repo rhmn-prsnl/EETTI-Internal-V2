@@ -6,6 +6,7 @@ import UserDetails from './UserDetails';
 import SettingsPage from './SettingsPage';
 import AttendancePage from './AttendancePage';
 import ProjectManagement from './ProjectManagement';
+import ProspectManagement from './ProspectManagement'; // New Import
 import ClientManagement from './ClientManagement'; // New Import
 import LeadManagement from './LeadManagement'; // New Import
 import PayrollManagement from './PayrollManagement'; // New Import
@@ -125,6 +126,7 @@ const HomePage: React.FC<HomePageProps> = ({ user, onLogout, onUpdateUser }) => 
   const [roles, setRoles] = useState<Role[]>(DEFAULT_ROLES);
   
   // Lead Management State
+  const [prospects, setProspects] = useState<Prospect[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [moms, setMoms] = useState<MOM[]>([]);
   const [followUps, setFollowUps] = useState<FollowUp[]>([]);
@@ -442,7 +444,8 @@ const HomePage: React.FC<HomePageProps> = ({ user, onLogout, onUpdateUser }) => 
 
         const [
           usersRes, clientsRes, projectsRes, tasksRes, 
-          invoicesRes, expensesRes, payrollRes, attendanceRes, leaveRes
+          invoicesRes, expensesRes, payrollRes, attendanceRes, leaveRes,
+          prospectsRes, leadsRes, momsRes, followUpsRes
         ] = await Promise.all([
           fetchJson('/api/users'),
           fetchJson('/api/clients'),
@@ -453,6 +456,10 @@ const HomePage: React.FC<HomePageProps> = ({ user, onLogout, onUpdateUser }) => 
           fetchJson('/api/payroll'),
           fetchJson('/api/attendance'),
           fetchJson('/api/leave_requests'),
+          fetchJson('/api/prospects'),
+          fetchJson('/api/leads'),
+          fetchJson('/api/moms'),
+          fetchJson('/api/follow_ups'),
         ]);
 
         if (Array.isArray(usersRes)) setUsers(usersRes);
@@ -466,6 +473,10 @@ const HomePage: React.FC<HomePageProps> = ({ user, onLogout, onUpdateUser }) => 
         if (Array.isArray(payrollRes)) setPayrollRecords(payrollRes);
         if (Array.isArray(attendanceRes)) setAttendanceRecords(attendanceRes);
         if (Array.isArray(leaveRes)) setLeaveRequests(leaveRes);
+        if (Array.isArray(prospectsRes)) setProspects(prospectsRes);
+        if (Array.isArray(leadsRes)) setLeads(leadsRes);
+        if (Array.isArray(momsRes)) setMoms(momsRes);
+        if (Array.isArray(followUpsRes)) setFollowUps(followUpsRes);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -545,6 +556,73 @@ const HomePage: React.FC<HomePageProps> = ({ user, onLogout, onUpdateUser }) => 
   };
 
   const handleDeleteDepartment = (id: string) => setDepartments(departments.filter(d => d.id !== id));
+
+  // --- Prospect Handlers ---
+  const handleAddProspect = (newProspect: Omit<Prospect, 'id' | 'createdAt' | 'updatedAt' | 'createdBy'>) => {
+    const prospect: Prospect = {
+      ...newProspect,
+      id: `pros_${Math.random().toString(36).substr(2, 9)}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: user.id
+    };
+    setProspects([prospect, ...prospects]);
+    fetch('/api/prospects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(prospect)
+    }).catch(e => console.error("Error adding prospect:", e));
+  };
+
+  const handleUpdateProspect = (id: string, updates: Partial<Prospect>) => {
+    updates.updatedAt = new Date().toISOString();
+    setProspects(prospects.map(p => p.id === id ? { ...p, ...updates } : p));
+    fetch(`/api/prospects/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    }).catch(e => console.error("Error updating prospect:", e));
+  };
+
+  const handleDeleteProspect = (id: string) => {
+    setProspects(prospects.filter(p => p.id !== id));
+    fetch(`/api/prospects/${id}`, { method: 'DELETE' }).catch(e => console.error("Error deleting prospect:", e));
+  };
+
+  const handleConvertToLead = (prospect: Prospect) => {
+    const newLead: Lead = {
+      id: `lead_${Math.random().toString(36).substr(2, 9)}`,
+      firstName: prospect.firstName || 'Unknown',
+      lastName: prospect.lastName || 'Prospect',
+      email: prospect.email || `${prospect.phone}@noemail.com`,
+      phone: prospect.phone,
+      company: prospect.companyName || '',
+      source: prospect.source,
+      status: 'new',
+      assignedTo: prospect.assignedTo,
+      createdBy: user.id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      notes: prospect.notes
+    };
+    
+    // Add to leads array
+    setLeads([newLead, ...leads]);
+    
+    // Sync to DB
+    fetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newLead)
+    }).catch(e => console.error("Error creating lead from prospect:", e));
+
+    handleAddNotification({
+      title: 'Prospect Converted',
+      message: `Prospect ${prospect.phone} converted to Lead successfully.`,
+      type: 'success',
+      targetUserIds: [user.id]
+    });
+  };
 
   // --- Client Handlers ---
   const handleAddClient = (client: Client) => setClients([...clients, client]);
@@ -729,6 +807,20 @@ const HomePage: React.FC<HomePageProps> = ({ user, onLogout, onUpdateUser }) => 
             onAddClient={handleAddClient}
             onEditClient={handleEditClient}
             onDeleteClient={handleDeleteClient}
+          />
+        );
+
+      case 'prospects':
+        if (!hasPermission('lead_view')) return <AccessDenied role={user.role} onBack={() => setCurrentView('dashboard')} />;
+        return (
+          <ProspectManagement
+            currentUser={user}
+            prospects={prospects}
+            users={users}
+            onAddProspect={handleAddProspect}
+            onUpdateProspect={handleUpdateProspect}
+            onDeleteProspect={handleDeleteProspect}
+            onConvertToLead={handleConvertToLead}
           />
         );
 

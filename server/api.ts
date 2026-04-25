@@ -3,10 +3,11 @@ import db from './database';
 
 const router = express.Router();
 
+const allowedTables = ['users', 'clients', 'projects', 'tasks', 'invoices', 'payments', 'expenses', 'resumes', 'quotations', 'attendance', 'leave_requests', 'payroll', 'prospects', 'leads', 'moms', 'follow_ups'];
+
 // Generic GET all
 router.get('/:table', (req, res) => {
   const { table } = req.params;
-  const allowedTables = ['users', 'clients', 'projects', 'tasks', 'invoices', 'payments', 'expenses', 'resumes', 'quotations', 'attendance', 'leave_requests', 'payroll'];
   
   if (!allowedTables.includes(table)) {
     return res.status(404).json({ error: 'Table not found' });
@@ -60,7 +61,6 @@ router.get('/:table', (req, res) => {
 // Generic POST
 router.post('/:table', (req, res) => {
   const { table } = req.params;
-  const allowedTables = ['users', 'clients', 'projects', 'tasks', 'invoices', 'payments', 'expenses', 'resumes', 'quotations', 'attendance', 'leave_requests', 'payroll'];
   
   if (!allowedTables.includes(table)) {
     return res.status(404).json({ error: 'Table not found' });
@@ -150,7 +150,6 @@ router.post('/:table', (req, res) => {
 // Generic PUT
 router.put('/:table/:id', (req, res) => {
   const { table, id } = req.params;
-  const allowedTables = ['users', 'clients', 'projects', 'tasks', 'invoices', 'payments', 'expenses', 'resumes', 'quotations', 'attendance', 'leave_requests', 'payroll'];
   
   if (!allowedTables.includes(table)) {
     return res.status(404).json({ error: 'Table not found' });
@@ -253,7 +252,6 @@ router.put('/:table/:id', (req, res) => {
 // Generic DELETE
 router.delete('/:table/:id', (req, res) => {
   const { table, id } = req.params;
-  const allowedTables = ['users', 'clients', 'projects', 'tasks', 'invoices', 'payments', 'expenses', 'resumes', 'quotations', 'attendance', 'leave_requests', 'payroll'];
   
   if (!allowedTables.includes(table)) {
     return res.status(404).json({ error: 'Table not found' });

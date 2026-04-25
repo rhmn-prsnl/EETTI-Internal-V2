@@ -233,3 +233,65 @@ CREATE TABLE IF NOT EXISTS resume_moms (
   FOREIGN KEY (resumeId) REFERENCES resumes(id) ON DELETE CASCADE,
   FOREIGN KEY (interviewer) REFERENCES users(id)
 );
+
+CREATE TABLE IF NOT EXISTS prospects (
+  id TEXT PRIMARY KEY,
+  phone TEXT NOT NULL,
+  email TEXT,
+  firstName TEXT,
+  lastName TEXT,
+  companyName TEXT,
+  source TEXT,
+  businessType TEXT,
+  businessDetails TEXT,
+  targetAudience TEXT,
+  status TEXT DEFAULT 'new',
+  notes TEXT,
+  nextFollowUp TEXT,
+  assignedTo TEXT,
+  createdBy TEXT,
+  createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (assignedTo) REFERENCES users(id),
+  FOREIGN KEY (createdBy) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS leads (
+  id TEXT PRIMARY KEY,
+  firstName TEXT NOT NULL,
+  lastName TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  company TEXT,
+  source TEXT NOT NULL,
+  status TEXT DEFAULT 'new',
+  assignedTo TEXT,
+  createdBy TEXT,
+  createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+  updatedAt TEXT DEFAULT CURRENT_TIMESTAMP,
+  notes TEXT,
+  FOREIGN KEY (assignedTo) REFERENCES users(id),
+  FOREIGN KEY (createdBy) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS moms (
+  id TEXT PRIMARY KEY,
+  leadId TEXT NOT NULL,
+  meetingDate TEXT NOT NULL,
+  attendees TEXT,
+  summary TEXT,
+  actionItems TEXT,
+  createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (leadId) REFERENCES leads(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS follow_ups (
+  id TEXT PRIMARY KEY,
+  leadId TEXT NOT NULL,
+  date TEXT NOT NULL,
+  type TEXT DEFAULT 'call',
+  notes TEXT,
+  status TEXT DEFAULT 'pending',
+  createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (leadId) REFERENCES leads(id) ON DELETE CASCADE
+);
